@@ -2,19 +2,21 @@
 #include <array>
 #include <iostream>
 
+#include "ray.h"
 #include "vec3.h"
+
 
 int main() {
 
   constexpr size_t image_width = 512;
   constexpr size_t image_height = 512;
 
-  std::array<vec3d, image_height * image_width> data;
+  std::array<color3d, image_height * image_width> data;
 
   auto color = [&, i = 0]() mutable {
-    return vec3d{static_cast<double>(i % image_width) / (image_width - 1),
-                 static_cast<double>(i++ / image_width) / (image_height - 1),
-                 0.25};
+    return color3d{static_cast<double>(i % image_width) / (image_width - 1),
+                   static_cast<double>(i++ / image_width) / (image_height - 1),
+                   0.25};
   };
 
   std::generate(data.begin(), data.end(), color);

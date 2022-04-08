@@ -2,7 +2,9 @@
 #define VECTOR_3
 
 #include <array>
-enum class type { point, vector, color };
+#include <ostream>
+
+enum class type { point, direction, color };
 
 template <type Type, typename T> class vec3 {
 public:
@@ -143,16 +145,25 @@ constexpr vec3<Type, T> unit_vector(const vec3<Type, T> &v) {
   return v / v.length();
 }
 
-using vec3f = vec3<type::vector, float>;
-using vec3d = vec3<type::vector, double>;
-using vec3i = vec3<type::vector, int>;
+template <typename T> using dir = vec3<type::direction, T>;
+using dir3f = dir<float>;
+using dir3d = dir<double>;
+using dir3i = dir<int>;
 
-using point3f = vec3<type::point, float>;
-using point3d = vec3<type::point, double>;
-using point3i = vec3<type::point, int>;
+template <typename T> using point = vec3<type::point, T>;
+using point3f = point<float>;
+using point3d = point<double>;
+using point3i = point<int>;
 
-using color3f = vec3<type::color, float>;
-using color3d = vec3<type::color, double>;
-using color3i = vec3<type::color, int>;
+template <typename T> using color = vec3<type::color, T>;
+using color3f = color<float>;
+using color3d = color<double>;
+using color3i = color<int>;
+
+template <typename T>
+constexpr point<T> operator+(const point<T> &rhs, const dir<T> &lhs) {
+  return point<T>{rhs.get<0>() + lhs.get<0>(), rhs.get<1>() + lhs.get<1>(),
+                  rhs.get<2>() + lhs.get<2>()};
+}
 
 #endif
