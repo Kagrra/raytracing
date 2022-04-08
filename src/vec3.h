@@ -166,4 +166,8 @@ constexpr point<T> operator+(const point<T> &rhs, const dir<T> &lhs) {
                   rhs.get<2>() + lhs.get<2>()};
 }
 
+template <typename T> constexpr T dot(const point<T> &rhs, const dir<T> &lhs) {
+  return rhs.get<0>() * lhs.get<0>() + rhs.get<1>() * lhs.get<1>() +
+         rhs.get<2>() * lhs.get<2>();
+}
 #endif
