@@ -4,6 +4,7 @@
 #include <numeric>
 
 #include "hitable.h"
+#include "hitable_list.h"
 #include "ray.h"
 #include "sphere.h"
 #include "vec3.h"
@@ -41,7 +42,9 @@ int main() {
 
   // World
 
-  sphere<double> s{{0, 0, -1}, 0.5};
+  hitable_list<double> world{
+      std::make_shared<sphere<double>>(point3d{0, 0, -1}, 0.5),
+      std::make_shared<sphere<double>>(point3d{0, -100.5, -1}, 100)};
 
   // Render
   auto color = [&, x = 0, y = image_height]() mutable {
@@ -56,7 +59,7 @@ int main() {
     }
 
     ray<double> r(origin, {dir.x(), dir.y(), dir.z()});
-    return ray_color(r, s);
+    return ray_color(r, world);
   };
   std::generate(screen.begin(), screen.end(), color);
 
