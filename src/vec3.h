@@ -160,13 +160,19 @@ using color3f = color<float>;
 using color3d = color<double>;
 using color3i = color<int>;
 
+template <type To, type From, typename T>
+constexpr vec3<To, T> interpret_as(const vec3<From, T> &src) {
+  return vec3<To, T>{src.get<0>(), src.get<1>(), src.get<2>()};
+}
+
 template <typename T>
 constexpr point<T> operator+(const point<T> &rhs, const dir<T> &lhs) {
   return point<T>{rhs.get<0>() + lhs.get<0>(), rhs.get<1>() + lhs.get<1>(),
                   rhs.get<2>() + lhs.get<2>()};
 }
 
-template <typename T> constexpr T dot(const point<T> &rhs, const dir<T> &lhs) {
+template <type Type1, type Type2, typename T>
+constexpr T dot(const vec3<Type1, T> &rhs, const vec3<Type2, T> &lhs) {
   return rhs.get<0>() * lhs.get<0>() + rhs.get<1>() * lhs.get<1>() +
          rhs.get<2>() * lhs.get<2>();
 }
