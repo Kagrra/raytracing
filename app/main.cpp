@@ -1,26 +1,23 @@
 #include <algorithm>
 #include <array>
 #include <iostream>
+#include <numeric>
 
+#include "hitable.h"
 #include "ray.h"
+#include "sphere.h"
 #include "vec3.h"
 
-bool hit_sphere(const point3d &center, double radius, const ray<double> &r) {
-  point3d oc = r.origin() - center;
-  auto a = dot(r.direction(), r.direction());
-  auto b = 2.0 * dot(oc, r.direction());
-  auto c = dot(oc, oc) - radius * radius;
-  auto discriminant = b * b - 4 * a * c;
-  return (discriminant > 0);
-}
-
-color3d ray_color(const ray<double> &r) {
-  if (hit_sphere(point3d(0, 0, -1), 0.5, r))
-    return color3d(1, 0, 0);
-
-  vec3 unit_direction = unit_vector(r.direction());
+color3d ray_color(const ray<double> &r, const hitable<double> &world) {
+  auto rec = world.hit(r, 0, std::numeric_limits<double>::infinity());
+  if (rec) {
+    return 0.5 * (color3d(1 + rec.value().normal.x(), //
+                          1 + rec.value().normal.y(), //
+                          1 + rec.value().normal.z()));
+  }
+  dir3d unit_direction = unit_vector(r.direction());
   auto t = 0.5 * (unit_direction.y() + 1.0);
-  return (1.0 - t) * color3d(1.0, 1.0, 1.0) + t * color3d(0.3, 0.6, 1.0);
+  return (1.0 - t) * color3d(1.0, 1.0, 1.0) + t * color3d(0.5, 0.7, 1.0);
 }
 
 int main() {
@@ -42,6 +39,10 @@ int main() {
   constexpr auto lower_left_corner =
       origin - horizontal / 2.0 - vertical / 2.0 - point3d(0, 0, focal_length);
 
+  // World
+
+  sphere<double> s{{0, 0, -1}, 0.5};
+
   // Render
   auto color = [&, x = 0, y = image_height]() mutable {
     const auto u = double(x) / (image_width - 1);
@@ -55,7 +56,7 @@ int main() {
     }
 
     ray<double> r(origin, {dir.x(), dir.y(), dir.z()});
-    return ray_color(r);
+    return ray_color(r, s);
   };
   std::generate(screen.begin(), screen.end(), color);
 
