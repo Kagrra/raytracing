@@ -3,11 +3,15 @@
 #include <iostream>
 #include <numeric>
 
+#include "camera.h"
 #include "hitable.h"
 #include "hitable_list.h"
+#include "misc.h"
 #include "ray.h"
 #include "sphere.h"
 #include "vec3.h"
+
+constexpr size_t samples_per_pixel = 100;
 
 color3d ray_color(const ray<double> &r, const hitable<double> &world) {
   auto rec = world.hit(r, 0, std::numeric_limits<double>::infinity());
@@ -22,7 +26,6 @@ color3d ray_color(const ray<double> &r, const hitable<double> &world) {
 }
 
 int main() {
-
   // Image
   constexpr auto aspect_ratio = 16.0 / 9.0;
   constexpr size_t image_width = 800;
@@ -30,15 +33,7 @@ int main() {
   std::array<color3d, image_height * image_width> screen;
 
   // Camera
-  constexpr auto viewport_height = 2.0;
-  constexpr auto viewport_width = aspect_ratio * viewport_height;
-  constexpr auto focal_length = 1.0;
-
-  constexpr auto origin = point3d(0, 0, 0);
-  constexpr auto horizontal = point3d(viewport_width, 0, 0);
-  constexpr auto vertical = point3d(0, viewport_height, 0);
-  constexpr auto lower_left_corner =
-      origin - horizontal / 2.0 - vertical / 2.0 - point3d(0, 0, focal_length);
+  camera<double> cam;
 
   // World
 
@@ -48,9 +43,14 @@ int main() {
 
   // Render
   auto color = [&, x = 0, y = image_height]() mutable {
-    const auto u = double(x) / (image_width - 1);
-    const auto v = double(y) / (image_height - 1);
-    auto dir = lower_left_corner + u * horizontal + v * vertical - origin;
+    color3d pixel_color{0.0, 0.0, 0.0};
+
+    for (int s = 0; s < samples_per_pixel; s++) {
+      const auto u = (double(x) + random_double()) / (image_width - 1);
+      const auto v = (double(y) + random_double()) / (image_height - 1);
+      ray<double> r = cam.get_ray(u, v);
+      pixel_color += ray_color(r, world);
+    }
 
     x++;
     if (x == image_width) {
@@ -58,8 +58,7 @@ int main() {
       y--;
     }
 
-    ray<double> r(origin, {dir.x(), dir.y(), dir.z()});
-    return ray_color(r, world);
+    return pixel_color;
   };
   std::generate(screen.begin(), screen.end(), color);
 
@@ -67,9 +66,15 @@ int main() {
   std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
   for (const auto &pix : screen) {
-    std::cout << static_cast<int>(255.999 * pix.r()) << ' '
-              << static_cast<int>(255.999 * pix.g()) << ' '
-              << static_cast<int>(255.999 * pix.b()) << '\n';
+    static constexpr double scale = 1.0 / samples_per_pixel;
+
+    auto r = pix.r() * scale;
+    auto g = pix.g() * scale;
+    auto b = pix.b() * scale;
+
+    std::cout << static_cast<int>(256 * clampd<0.0, 0.999>(r)) << ' '
+              << static_cast<int>(256 * clampd<0.0, 0.999>(g)) << ' '
+              << static_cast<int>(256 * clampd<0.0, 0.999>(b)) << '\n';
   }
   return 0;
 }
