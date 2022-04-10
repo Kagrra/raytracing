@@ -2,13 +2,13 @@
 #define SPHERE_H
 
 #include "hitable.h"
+#include "material.h"
 #include "vec3.h"
 
 template <typename T> class sphere : public hitable<T> {
 public:
-  constexpr sphere() = default;
-  constexpr sphere(point<T> center, T radius)
-      : center_{center}, radius_{radius} {}
+  constexpr sphere(point<T> center, T radius, material<T> &mat)
+      : center_{center}, radius_{radius}, mat_{mat} {}
 
   constexpr std::optional<hit_data<T>> hit(const ray<T> &r, T t_min,
                                            T t_max) const noexcept override {
@@ -30,7 +30,7 @@ public:
         return {};
     }
 
-    hit_data<T> ret{};
+    hit_data<T> ret;
     ret.p = r.at(root);
     ret.t = root;
     auto outward_normal =
@@ -38,13 +38,14 @@ public:
 
     ret.front_face = dot(r.direction(), outward_normal) < 0;
     ret.normal = ret.front_face ? outward_normal : -outward_normal;
-
+    ret.mat = &mat_;
     return ret;
   }
 
 private:
   point<T> center_;
   T radius_;
+  material<T> &mat_;
 };
 
 #endif

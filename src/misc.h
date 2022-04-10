@@ -9,6 +9,12 @@ inline double random_double() {
   return distribution(generator);
 }
 
+inline double random_double(double min, double max) {
+  static std::uniform_real_distribution<double> distribution(min, max);
+  static std::mt19937 generator;
+  return distribution(generator);
+}
+
 template <typename T, T Min, T Max> struct clamp {
   T operator()(T value) {
     if (value < Min)

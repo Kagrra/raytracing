@@ -2,6 +2,7 @@
 #define HITABLE_LIST_H
 
 #include "hitable.h"
+#include "material.h"
 #include <memory>
 #include <vector>
 

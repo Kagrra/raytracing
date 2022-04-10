@@ -1,6 +1,7 @@
 #ifndef VECTOR_3
 #define VECTOR_3
 
+#include "misc.h"
 #include <array>
 #include <ostream>
 
@@ -76,6 +77,30 @@ public:
     d_[0] /= len;
     d_[1] /= len;
     d_[2] /= len;
+  }
+
+  constexpr static vec3 random(T min, T max) {
+    return vec3(random_double(min, max), //
+                random_double(min, max), //
+                random_double(min, max));
+  }
+
+  constexpr static vec3 random_in_unit_sphere() {
+    while (true) {
+      auto p = random(-1.0, 1.0);
+      if (p.length_squared() >= 1.0)
+        continue;
+      return p;
+    }
+  }
+
+  constexpr static vec3 random_unit_vector() {
+    return unit_vector(random_in_unit_sphere());
+  }
+
+  constexpr bool near_zero() {
+    static constexpr T e = 1e-8;
+    return (fabs(d_[0]) < e) && (fabs(d_[1]) < e) && (fabs(d_[2]) < e);
   }
 
 private:
@@ -176,4 +201,5 @@ constexpr T dot(const vec3<Type1, T> &rhs, const vec3<Type2, T> &lhs) {
   return rhs.get<0>() * lhs.get<0>() + rhs.get<1>() * lhs.get<1>() +
          rhs.get<2>() * lhs.get<2>();
 }
+
 #endif

@@ -5,16 +5,20 @@
 #include "vec3.h"
 #include <optional>
 
+template <typename T> struct material;
+
 template <typename T> struct hit_data {
   point<T> p;
   dir<T> normal;
   T t;
   bool front_face;
+  material<T> *mat{nullptr};
 };
 
 template <typename T> struct hitable {
   virtual std::optional<hit_data<T>> hit(const ray<T> &r, T t_min,
                                          T t_max) const noexcept = 0;
+
   virtual ~hitable() = default;
 };
 
