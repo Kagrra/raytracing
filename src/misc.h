@@ -1,6 +1,7 @@
 #ifndef MISC_H
 #define MISC_H
 
+#include <numbers>
 #include <random>
 
 inline double random_double() {
@@ -30,5 +31,9 @@ inline clamp<float, Min, Max> clampf{};
 
 template <double Min, double Max> //
 inline clamp<double, Min, Max> clampd{};
+
+template <typename T> inline T degrees_to_radians(T degrees) {
+  return degrees * std::numbers::pi_v<T> / 180.0;
+}
 
 #endif
