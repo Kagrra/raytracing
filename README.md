@@ -1,4 +1,4 @@
 # raytracing
-Inspired by [Raytracing in a weekend](https://raytracing.github.io/books/RayTracingInOneWeekend.html#outputanimage/theppmimageformat) I plan to draw some shiny spheres.
+Inspired by [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html) I plan to draw some shiny spheres.
 
 
