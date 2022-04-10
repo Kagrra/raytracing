@@ -35,4 +35,21 @@ private:
   color<T> albedo_;
 };
 
+template <typename T> struct metal : public material<T> {
+public:
+  metal(const color<T> &albedo) : albedo_{albedo} {}
+
+  std::optional<std::tuple<color<T>, ray<T>>>
+  scatter(const ray<T> &r,
+          const hit_data<T> &hit_data) const noexcept override {
+    auto reflect_dir = reflect(unit_vector(r.direction()), hit_data.normal);
+    if (dot(reflect_dir, hit_data.normal) <= 0)
+      return {};
+
+    return std::make_tuple(albedo_, ray<T>(hit_data.p, reflect_dir));
+  }
+
+private:
+  color<T> albedo_;
+};
 #endif

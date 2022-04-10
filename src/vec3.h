@@ -202,4 +202,9 @@ constexpr T dot(const vec3<Type1, T> &rhs, const vec3<Type2, T> &lhs) {
          rhs.get<2>() * lhs.get<2>();
 }
 
+template <typename T>
+constexpr dir<T> reflect(const dir<T> &v, const dir<T> &n) {
+  return v - 2 * dot(v, n) * n;
+}
+
 #endif

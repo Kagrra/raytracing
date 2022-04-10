@@ -57,15 +57,15 @@ int main() {
 
   // World
   lambertian<double> matte_red{color3d{0.8, 0.3, 0.4}};
-  lambertian<double> matte_grey{color3d{0.7, 0.7, 0.7}};
-  lambertian<double> matte_white{color3d{1.0, 1.0, 1.0}};
+  metal<double> metal_grey{color3d{0.3, 0.7, 0.7}};
+  metal<double> metal_white{color3d{1.0, 1.0, 1.0}};
   lambertian<double> matte_green{color3d{0.2, 0.5, 0.1}};
 
   hitable_list<double> world{
       std::make_shared<sphere<double>>(point3d{0.7, -0.3, -0.8}, 0.2,
-                                       matte_grey),
+                                       metal_grey),
       std::make_shared<sphere<double>>(point3d{-0.7, -0.3, -0.8}, 0.2,
-                                       matte_white),
+                                       metal_white),
       std::make_shared<sphere<double>>(point3d{0.0, 0.0, -1.0}, 0.5, matte_red),
       std::make_shared<sphere<double>>(point3d{0, -100.5, -1}, 100,
                                        matte_green)};
