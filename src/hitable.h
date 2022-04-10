@@ -12,7 +12,7 @@ template <typename T> struct hit_data {
   dir<T> normal;
   T t;
   bool front_face;
-  material<T> *mat{nullptr};
+  std::shared_ptr<material<T>> mat;
 };
 
 template <typename T> struct hitable {

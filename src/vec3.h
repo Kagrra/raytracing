@@ -79,6 +79,12 @@ public:
     d_[2] /= len;
   }
 
+  constexpr static vec3 random() {
+    return vec3(random_double(), //
+                random_double(), //
+                random_double());
+  }
+
   constexpr static vec3 random(T min, T max) {
     return vec3(random_double(min, max), //
                 random_double(min, max), //
@@ -96,6 +102,15 @@ public:
 
   constexpr static vec3 random_unit_vector() {
     return unit_vector(random_in_unit_sphere());
+  }
+
+  constexpr static vec3 random_in_unit_disk() {
+    while (true) {
+      auto p = vec3(random_double(-1.0, 1.0), random_double(-1.0, 1.0), 0.0);
+      if (p.length_squared() >= 1.0)
+        continue;
+      return p;
+    }
   }
 
   constexpr bool near_zero() {
@@ -140,7 +155,7 @@ constexpr vec3<Type, T> operator*(T rhs, const vec3<Type, T> &lhs) {
 }
 
 template <type Type, typename T>
-constexpr vec3<Type, T> operator*(const vec3<Type, T> &rhs, double lhs) {
+constexpr vec3<Type, T> operator*(const vec3<Type, T> &rhs, T lhs) {
   return vec3<Type, T>{rhs.get<0>() * lhs, rhs.get<1>() * lhs,
                        rhs.get<2>() * lhs};
 }
@@ -205,6 +220,15 @@ constexpr T dot(const vec3<Type1, T> &rhs, const vec3<Type2, T> &lhs) {
 template <typename T>
 constexpr dir<T> reflect(const dir<T> &v, const dir<T> &n) {
   return v - 2 * dot(v, n) * n;
+}
+
+template <typename T>
+constexpr dir<T> refract(const dir<T> &uv, const dir<T> &n,
+                         double etai_over_etat) {
+  auto cos_theta = fmin(dot(-uv, n), 1.0);
+  dir<T> r_out_perp = etai_over_etat * (uv + cos_theta * n);
+  dir<T> r_out_parallel = -sqrt(fabs(1.0 - r_out_perp.length_squared())) * n;
+  return r_out_perp + r_out_parallel;
 }
 
 #endif

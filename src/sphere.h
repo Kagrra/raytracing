@@ -4,10 +4,11 @@
 #include "hitable.h"
 #include "material.h"
 #include "vec3.h"
+#include <memory>
 
 template <typename T> class sphere : public hitable<T> {
 public:
-  constexpr sphere(point<T> center, T radius, material<T> &mat)
+  constexpr sphere(point<T> center, T radius, std::shared_ptr<material<T>> mat)
       : center_{center}, radius_{radius}, mat_{mat} {}
 
   constexpr std::optional<hit_data<T>> hit(const ray<T> &r, T t_min,
@@ -38,14 +39,14 @@ public:
 
     ret.front_face = dot(r.direction(), outward_normal) < 0;
     ret.normal = ret.front_face ? outward_normal : -outward_normal;
-    ret.mat = &mat_;
+    ret.mat = mat_;
     return ret;
   }
 
 private:
   point<T> center_;
   T radius_;
-  material<T> &mat_;
+  std::shared_ptr<material<T>> mat_;
 };
 
 #endif

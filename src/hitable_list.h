@@ -14,6 +14,8 @@ public:
 
   void clear() { objects_.clear(); }
 
+  void add(std::shared_ptr<hitable<T>> object) { objects_.push_back(object); }
+
   constexpr std::optional<hit_data<T>> hit(const ray<T> &r, T t_min,
                                            T t_max) const noexcept override {
     hit_data<T> best_rec;

@@ -13,8 +13,8 @@
 #include "sphere.h"
 #include "vec3.h"
 
-constexpr size_t samples_per_pixel = 100;
-constexpr size_t bounces = 50;
+constexpr size_t samples_per_pixel = 50;
+constexpr size_t bounces = 10;
 
 color3d ray_color(const ray<double> &r, const hitable<double> &world,
                   size_t depth) {
@@ -53,23 +53,54 @@ int main() {
   std::array<color3d, image_height * image_width> screen;
 
   // Camera
-  camera<double> cam;
+  point3d look_from{13.0, 2.0, 3.0};
+  point3d look_at{0.0, 0.0, 0.0};
+  dir3d up{0.0, 1.0, 0.0};
+
+  const auto dist_to_focus = 10.0f;
+  const auto aperture = 0.1;
+
+  camera<double> cam(look_from, look_at, up, 20, aspect_ratio, aperture,
+                     dist_to_focus);
 
   // World
-  lambertian<double> matte_red{color3d{0.8, 0.3, 0.4}};
-  metal<double> metal_grey{color3d{0.3, 0.7, 0.7}};
-  metal<double> metal_white{color3d{1.0, 1.0, 1.0}};
-  lambertian<double> matte_green{color3d{0.2, 0.5, 0.1}};
+  auto material_ground =
+      std::make_shared<lambertian<double>>(color(0.5, 0.5, 0.5));
+
+  auto material1 = std::make_shared<dielectric<double>>(1.5);
+  auto material2 = std::make_shared<lambertian<double>>(color(0.4, 0.2, 0.1));
+  auto material3 = std::make_shared<metal<double>>(color(0.7, 0.6, 0.5), 0.0);
 
   hitable_list<double> world{
-      std::make_shared<sphere<double>>(point3d{0.7, -0.3, -0.8}, 0.2,
-                                       metal_grey),
-      std::make_shared<sphere<double>>(point3d{-0.7, -0.3, -0.8}, 0.2,
-                                       metal_white),
-      std::make_shared<sphere<double>>(point3d{0.0, 0.0, -1.0}, 0.5, matte_red),
-      std::make_shared<sphere<double>>(point3d{0, -100.5, -1}, 100,
-                                       matte_green)};
+      std::make_shared<sphere<double>>(point3d(0.0, -1000, 0), 1000.0,
+                                       material_ground),
+      std::make_shared<sphere<double>>(point3d(0, 1, 0), 1.0, material1),
+      std::make_shared<sphere<double>>(point3d(-4, 1, 0), 1.0, material2),
+      std::make_shared<sphere<double>>(point3d(4, 1, 0), 1.0, material3)};
 
+  for (int x = -11; x < 11; x++)
+    for (int y = -11; y < 11; y++) {
+      auto material = random_double();
+      point3d center{x + random_double(), 0.2, y + random_double()};
+
+      if ((center - point3d(4, 0.2, 0)).length() < 0.9)
+        continue;
+
+      if (material < 0.8) {
+        world.add(std::make_shared<sphere<double>>(
+            center, 0.2,
+            std::make_shared<lambertian<double>>(color3d::random() *
+                                                 color3d::random())));
+      } else if (material < 0.95) {
+        world.add(make_shared<sphere<double>>(
+            center, 0.2,
+            std::make_shared<metal<double>>(color3d::random(0.5, 1.0),
+                                            random_double(0.0, 0.5))));
+      } else {
+        world.add(std::make_shared<sphere<double>>(
+            center, 0.2, std::make_shared<dielectric<double>>(1.5)));
+      }
+    }
   // Render
   auto color = [&, x = 0, y = image_height]() mutable {
     color3d pixel_color{0.0, 0.0, 0.0};
